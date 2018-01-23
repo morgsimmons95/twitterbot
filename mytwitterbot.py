@@ -4,7 +4,8 @@
 #I may augment this or build a companion bot to collect data to visualize after some time.
 
 # -*- coding: utf-8 -*-
-import time, sys, tweepy, random
+import time, sys, tweepy, random, logging
+from subprocess import call
 
 #Twitter bot oauth information
 #----------------------------------------------------------------------
@@ -15,7 +16,15 @@ access_key = 'accesskeygoeshere'
 access_secret = 'accesssecretgoeshere'
 #
 #----------------------------------------------------------------------
+
+#logging configuration
+#----------------------------------------------------------------------
 #
+logging.basicConfig(level=logging.DEBUG, filename = "tblogfile", filemode = "a+",
+					format = "%(asctime)-15s %(levelname)-8s %(message)s")
+#
+#----------------------------------------------------------------------
+
 
 #oauth dance
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -36,7 +45,7 @@ while bot_active == True:
 	searched_tweets = []
 	last_id = -1
 	query = random.choice(query_list)
-	print "search criteria: " + query
+	logging.info("search criteria: " + query)
 	while len(searched_tweets) < max_tweets:
 		count = max_tweets - len(searched_tweets)
 		try:
@@ -54,12 +63,12 @@ while bot_active == True:
 			if i.retweeted == False and hasattr(i, 'retweeted_status') == False: #making sure the bot has not already retweeted and the tweet in question is the original, not a retweet
 				if ('follow' in i.text or 'FOLLOW' in i.text or 'Follow' in i.text) and i.user.following == False: #if the tweets contain these extra steps, do them
 					api.create_friendship(i.user.id_str)
-					print "followed " + i.user.screen_name
+					logging.info("followed " + i.user.screen_name)
 				if ('like' in i.text or 'LIKE' in i.text or 'Like' in i.text or 'Fav' in i.text or 'FAV' in i.text or 'fav' in i.text) and i.favorited == False: #if the tweets contain these extra steps, do them
 					api.create_favorite(i.id)
-					print "favorited tweet by" + i.user.screen_name
+					logging.info("favorited tweet by " + i.user.screen_name)
 				api.retweet(i.id)
-				print "retweeted tweet by " +i.user.screen_name
+				logging.info("retweeted tweet by " + i.user.screen_name)
 
 		#clean up follower list to stay under follow limit
 		#follower limit is 5000 for twitter accounts that have fewer than 100 followers
@@ -70,9 +79,9 @@ while bot_active == True:
 				api.destroy_friendship(api.friends_ids(api.me().id)[-1].id) #if follower count ever gets above 4500, unfollow the oldest 1000
 				#cannot unfollow all of them because giveaways have variable durations -- need to catch the sweetspot
 	except tweepy.TweepError as e:
-		print "***Problem tweet by >>>" + i.user.screen_name #indicates which user is causing "you've already retweeted this" errors
-		print e
+		logging.warning("Error occured interacting with tweet by " + i.user.screen_name)
+		logging.warning(e)
 
 	#go to sleep for an hour
-	print "Finished searching. Going to sleep for 1 hour."
+	logging.info("Finished searching. Going to sleep for 1 hour.")
 	time.sleep(3600)
