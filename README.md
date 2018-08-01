@@ -1,5 +1,5 @@
 # twitterbot
-### You can find my twitterbot at @webbybo
+### You can find my twitterbot at @webbybo (offline indefinitely)
 ## Description
 This is a very simple twitter bot that searches twitter for a giveaway query (default is "retweet giveaway"). Once it finds a tweet containing these words, it checks if it must favorite and/or follow in order to enter the contest. If necessary, it does those things before retweeting. **The bot is very simple so it does not distinguish parameters like "tag your friends" or "follow this link to enter the giveaway".** I made this bot to familiarize myself with the tweepy api. S/o to tweepy!
 
